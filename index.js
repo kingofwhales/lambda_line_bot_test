@@ -5,6 +5,7 @@ const crypto = require('crypto')
 const bodyParser = require("body-parser")
 const line = require("@line/bot-sdk")
 const axios = require('axios')
+const https = require("https");
 
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: false })); // for parsing application/x-www-form-urlencoded
@@ -34,6 +35,7 @@ app.post("/", function(req, res) {
   console.log(header)
 
   if (signature === header) {
+    res.send("matched")
     console.log("----------matched conditions--------");
     console.log("----------matched conditions--------");
     console.log("----------matched conditions--------");
@@ -41,39 +43,64 @@ app.post("/", function(req, res) {
 
     let replyKey = "Bearer " + "oPo32JHLRrDJHbcGNpinlmkfgSwdRsFdn84CS1qQq7gGS6kFKPMQzIKmRkUh4UX40xx5aB0DxG1e+zj1FyLGfujefaU3uG1cIiCuhrKuFs2K24GUae3/27R/0nUbFv5jJA+Jj1+KiNeduQXl4VtpogdB04t89/1O/w1cDnyilFU=";
     let replyToken = req.body.events[0].replyToken
-    let message = [{ type: "text", text: "i have received your message. Congrats! we did it!" }];
-    console.log('---replytoken-----')
-    console.log("---replytoken-----");
-    console.log("---replytoken-----");
-    console.log("---replytoken-----");
-    console.log(replyToken)
+    let message = [
+      {
+        type: "text",
+        text: "i have received your message. Congrats! we did it!"
+      }
+    ];
+    let userID = req.body.events[0].source.userId
+    // console.log('---replytoken-----')
+    // console.log("---replytoken-----");
+    // console.log("---replytoken-----");
+    // console.log("---replytoken-----");
+    // console.log(replyToken)
 
-    // axios({
-    //   method: "post",
-    //   url: "https://api.line.me/v2/bot/message/reply",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: replyKey
-    //   },
-    //   data: {
-    //     replyToken: replyToken,
-    //     messages: message
-    //   }
-    // })
-    //   .then(function(response) {
-    //     console.log("---success---");
-    //     console.log("---success---");
-    //     console.log("---success---");
-    //     console.log("---success---");
-    //     console.log(response);
-    //   })
-    //   .catch(function(err) {
-    //     console.log("---success---");
-    //     console.log("---success---");
-    //     console.log("---success---");
-    //     console.log("---success---");
-    //     console.log(err);
-    //   });
+    axios({
+      method: "post",
+      url: "https://api.line.me/v2/bot/message/push",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: replyKey
+      },
+      // httpsAgent: new https.Agent({
+      //   ciphers: 'DES-CBC3-SHA'
+      // }),
+      data: {
+        to: "Ua4349531c4ff8c983b5b8a88b026188e",
+        messages: [
+          {
+            type: "text",
+            text: "hahaha we did it!"
+          }
+        ]
+      },
+      validateStatus: function(status) {
+        console.log("----status code is-----");
+        console.log("----status code is-----");
+        console.log("----status code is-----");
+        console.log("----status code is-----");
+        console.log("----status code is-----");
+        console.log("----status code is-----");
+        console.log(status)
+        return status >= 200 && status < 300
+      }
+    })
+      .then(function(response) {
+        console.log("---success---");
+        console.log("---success---");
+        console.log("---success---");
+        console.log("---success---");
+        console.log(response.status)
+        console.log(response);
+      })
+      .catch(function(err) {
+        console.log("---success---");
+        console.log("---success---");
+        console.log("---success---");
+        console.log("---success---");
+        console.log(err);
+      });
 
 
 
@@ -83,12 +110,12 @@ app.post("/", function(req, res) {
     //     "oPo32JHLRrDJHbcGNpinlmkfgSwdRsFdn84CS1qQq7gGS6kFKPMQzIKmRkUh4UX40xx5aB0DxG1e+zj1FyLGfujefaU3uG1cIiCuhrKuFs2K24GUae3/27R/0nUbFv5jJA+Jj1+KiNeduQXl4VtpogdB04t89/1O/w1cDnyilFU=",
     //   channelSecret: "5a8d01f3fdeedbfeb15d574f3f01eabc"
     // });
-    // const message = {
-    //   type: 'text',
-    //   text: 'i have received your message. Congrats! we did it!'
-    // };
+    // // const message = {
+    // //   type: 'text',
+    // //   text: 'i have received your message. Congrats! we did it!'
+    // // };
     // client
-    //   .replyMessage(req.body.events[0].replyToken, message)
+    //   .pushMessage(userID, message)
     //   .then((data) => {
     //     console.log('-success-')
     //     console.log("-success-");
@@ -108,7 +135,6 @@ app.post("/", function(req, res) {
     //     console.log("-error-");
     //     console.log(err)
     //   });
-    res.send('matched')
   } else {
     res.send('you are not from line')
   }
